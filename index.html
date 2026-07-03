@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پالس // داشبورد مدیریت زمان و برنامه تمرینی</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#0f131a; --panel-2:#141a23; --border:#212836; --border-soft:#1a2029;
+    --text:#e7ecf3; --muted:#7c8797; --muted-2:#4e5768;
+    --sleep:#6366f1; --work:#2f7ef0; --study:#f5a524; --workout:#17c98f; --leak:#f2416b; --off:#3a4353;
+    --accent:#22d3ee;
+  }
+  *{box-sizing:border-box;}
+  html,body{background:var(--bg); color:var(--text); font-family:'Vazirmatn',sans-serif;}
+  .font-display{font-family:'Vazirmatn',sans-serif;}
+  .font-mono{font-family:'JetBrains Mono',monospace; direction:ltr; unicode-bidi:isolate;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#232b39; border-radius:8px;}
+  ::-webkit-scrollbar-thumb:hover{background:#2e394a;}
+
+  .panel{background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); border-radius:14px;}
+  .panel-glow{box-shadow:0 0 0 1px rgba(34,211,238,0.04), 0 20px 40px -20px rgba(0,0,0,0.6);}
+  .hairline{border-color:var(--border-soft);}
+
+  .dot{width:6px;height:6px;border-radius:999px; display:inline-block;}
+  .glow-green{background:#17c98f; box-shadow:0 0 8px 2px rgba(23,201,143,0.7); animation:pulse 2s infinite;}
+  .glow-cyan{background:var(--accent); box-shadow:0 0 8px 2px rgba(34,211,238,0.7);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
+
+  .tag{font-family:'JetBrains Mono',monospace; direction:ltr; font-size:10px; letter-spacing:.04em; padding:3px 8px; border-radius:6px; border:1px solid var(--border); background:#0d1117; display:inline-block;}
+
+  /* Timeline grid */
+  .tl-wrap{display:grid; grid-template-columns:52px repeat(7, minmax(0,1fr)); }
+  .tl-hourlabel{font-family:'JetBrains Mono',monospace; direction:ltr; font-size:10px; color:var(--muted-2); text-align:center; padding:0 4px; height:22px; line-height:22px;}
+  .tl-daylabel{font-family:'Vazirmatn',sans-serif; font-size:12px; font-weight:600; color:var(--muted); text-align:center; padding-bottom:6px;}
+  .tl-cell{height:22px; border-top:1px solid var(--border-soft); border-right:1px solid var(--border-soft); position:relative; cursor:pointer; transition:background .1s;}
+  .tl-cell:hover{background:rgba(255,255,255,0.03);}
+  .tl-cell.locked{cursor:not-allowed;}
+  .tl-cell.hour0{border-top:1px solid var(--border);}
+  .tl-cell[data-type="sleep"]{background:linear-gradient(180deg, #6366f1, #5457d6);}
+  .tl-cell[data-type="work"]{background:linear-gradient(180deg, #2f7ef0, #2668c9);}
+  .tl-cell[data-type="study"]{background:linear-gradient(180deg, #f5a524, #d98c14);}
+  .tl-cell[data-type="workout"]{background:linear-gradient(180deg, #17c98f, #10a877);}
+  .tl-cell[data-type="off"]{background:repeating-linear-gradient(135deg, #1a212c, #1a212c 4px, #151b24 4px, #151b24 8px);}
+  .tl-cell.leak{outline:1px dashed rgba(242,65,107,0.5); outline-offset:-1px; animation:leakGlow 2.4s infinite;}
+  @keyframes leakGlow{0%,100%{background:rgba(242,65,107,0.03);}50%{background:rgba(242,65,107,0.12);}}
+
+  .tool-btn{transition:all .15s;}
+  .tool-btn[data-active="true"]{box-shadow:0 0 0 2px rgba(255,255,255,0.15) inset, 0 0 16px -2px currentColor;}
+
+  .ring-shadow{filter: drop-shadow(0 0 6px rgba(34,211,238,0.5));}
+
+  .cal-cell{aspect-ratio:1/0.85; border:1px solid var(--border-soft); border-radius:8px; position:relative; cursor:pointer; transition:.15s;}
+  .cal-cell:hover{border-color:var(--accent); background:rgba(34,211,238,0.05);}
+  .cal-cell.today{outline:1px solid var(--accent);}
+
+  .fade-in{animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);}to{opacity:1; transform:translateY(0);}}
+
+  .scrollpane{max-height:520px; overflow-y:auto;}
+
+  input[type="range"]{-webkit-appearance:none; height:4px; border-radius:4px; background:#232b39;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:14px; height:14px; border-radius:999px; background:var(--accent); box-shadow:0 0 8px rgba(34,211,238,0.7); cursor:pointer;}
+
+  select, input[type="number"]{background:#0d1117; border:1px solid var(--border); color:var(--text);}
+  select:focus, input:focus{outline:1px solid var(--accent);}
+
+  .view-toggle-btn[data-active="true"]{background:var(--accent); color:#001217;}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ===================== نوار بالا ===================== -->
+<header class="border-b hairline sticky top-0 z-30 backdrop-blur bg-[#0a0d12]/90">
+  <div class="max-w-[1600px] mx-auto px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
+        <i data-lucide="activity" class="w-5 h-5 text-black"></i>
+      </div>
+      <div>
+        <h1 class="font-display font-bold text-[16px] leading-none">پالس <span class="text-[var(--muted)] font-normal text-[13px]">/ سامانه زمان و تمرین</span></h1>
+        <div class="flex items-center gap-1.5 mt-1">
+          <span class="dot glow-green"></span>
+          <span class="font-mono text-[10px] text-[var(--muted)]" id="phaseTag">SYNCING…</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="panel px-4 py-2 flex items-center gap-3">
+        <i data-lucide="timer" class="w-4 h-4 text-[var(--accent)]"></i>
+        <div>
+          <div class="text-[10px] text-[var(--muted)] leading-none">شمارش‌معکوس برنامه</div>
+          <div id="countdownText" class="font-mono text-[13px] font-semibold leading-tight mt-1">—</div>
+        </div>
+      </div>
+      <div class="panel px-4 py-2 flex items-center gap-3">
+        <i data-lucide="calendar-range" class="w-4 h-4 text-[var(--study)]"></i>
+        <div>
+          <div class="text-[10px] text-[var(--muted)] leading-none">بازه زمانی</div>
+          <div class="font-mono text-[13px] font-semibold leading-tight mt-1">15 تیر ← 15 مهر</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== چیدمان اصلی ===================== -->
+<main class="max-w-[1600px] mx-auto px-5 py-5 grid grid-cols-1 xl:grid-cols-[280px_1fr_300px] gap-5">
+
+  <!-- ============ سایدبار راست: قوانین ============ -->
+  <aside class="space-y-4 order-2 xl:order-1">
+
+    <div class="panel panel-glow p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="lock" class="w-3.5 h-3.5 text-[var(--muted)]"></i> برنامه‌ی ثابت</h2>
+        <span class="tag text-[var(--muted)]">قفل‌شده</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between p-2 rounded-lg border hairline">
+          <div class="flex items-center gap-2">
+            <span class="dot" style="background:var(--sleep)"></span>
+            <span class="text-[12px]">خواب</span>
+          </div>
+          <span class="font-mono text-[11px] text-[var(--muted)]">01:00–05:00</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-lg border hairline">
+          <div class="flex items-center gap-2">
+            <span class="dot" style="background:var(--work)"></span>
+            <span class="text-[12px]">کار</span>
+          </div>
+          <span class="font-mono text-[11px] text-[var(--muted)]">09:00–21:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-[var(--muted)]"></i> تنظیم قوانین</h2>
+
+      <label class="text-[11px] text-[var(--muted)]">روز تعطیل هفته</label>
+      <select id="offDaySelect" class="w-full mt-1 mb-3 rounded-lg px-3 py-2 text-[13px]">
+        <option value="-1">هیچ‌کدام</option>
+      </select>
+
+      <label class="text-[11px] text-[var(--muted)]">ساعات آزاد شناور در هفته</label>
+      <div class="flex items-center gap-3 mt-1">
+        <input id="floatingRange" type="range" min="0" max="30" value="6" class="flex-1">
+        <span id="floatingVal" class="font-mono text-[13px] w-10 text-left">6h</span>
+      </div>
+
+      <div class="mt-3">
+        <div class="flex justify-between text-[11px] mb-1">
+          <span class="text-[var(--muted)]">پیشرفت سهمیه</span>
+          <span id="quotaLabel" class="font-mono">0 / 6h</span>
+        </div>
+        <div class="h-2 rounded-full bg-[#161b24] overflow-hidden border hairline">
+          <div id="quotaBar" class="h-full rounded-full transition-all" style="width:0%; background:linear-gradient(90deg,#17c98f,#22d3ee)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="paintbrush" class="w-3.5 h-3.5 text-[var(--muted)]"></i> ابزار رنگ‌آمیزی</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <button class="tool-btn px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center gap-2" style="color:#f5a524" data-tool="study" data-active="true">
+          <span class="dot" style="background:var(--study)"></span> مطالعه
+        </button>
+        <button class="tool-btn px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center gap-2" style="color:#17c98f" data-tool="workout">
+          <span class="dot" style="background:var(--workout)"></span> تمرین
+        </button>
+        <button class="tool-btn col-span-2 px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center justify-center gap-2 text-[var(--muted)]" data-tool="erase">
+          <i data-lucide="eraser" class="w-3.5 h-3.5"></i> پاک کردن خانه
+        </button>
+      </div>
+      <p class="text-[11px] text-[var(--muted)] mt-3 leading-relaxed">روی ساعت‌های باز (قفل‌نشده) بکشید تا رنگ‌آمیزی شود. خانه‌های خواب، کار و روز تعطیل قابل تغییر نیستند.</p>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="github" class="w-3.5 h-3.5 text-[var(--muted)]"></i> همگام‌سازی گیت‌هاب</h2>
+        <span class="flex items-center gap-1.5">
+          <span id="ghStatusDot" class="dot" style="background:#3a4353"></span>
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div>
+          <label class="text-[10px] text-[var(--muted)]">توکن دسترسی (PAT)</label>
+          <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+        </div>
+        <div>
+          <label class="text-[10px] text-[var(--muted)]">مخزن (owner/repo)</label>
+          <input id="ghRepo" type="text" placeholder="SAY4s/pery" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-[var(--muted)]">مسیر فایل</label>
+            <input id="ghPath" type="text" value="data/schedule.json" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+          </div>
+          <div>
+            <label class="text-[10px] text-[var(--muted)]">شاخه</label>
+            <input id="ghBranch" type="text" value="main" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button id="ghLoadBtn" class="px-3 py-2 rounded-lg border hairline text-[11px] flex items-center justify-center gap-1.5 text-[var(--muted)] hover:text-white">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> بارگذاری
+          </button>
+          <button id="ghSaveBtn" class="px-3 py-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5" style="background:var(--accent); color:#001217;">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i> ذخیره
+          </button>
+        </div>
+        <div id="ghStatusText" class="text-[10px] text-[var(--muted)] font-mono pt-1" style="direction:ltr; text-align:left;">آماده</div>
+      </div>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="gauge" class="w-3.5 h-3.5 text-[var(--muted)]"></i> آمار سریع</h2>
+      <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="p-2 rounded-lg border hairline">
+          <div id="qsProductive" class="font-mono text-[17px] font-bold text-[var(--accent)]">0h</div>
+          <div class="text-[10px] text-[var(--muted)] mt-0.5">مفید / هفته</div>
+        </div>
+        <div class="p-2 rounded-lg border hairline">
+          <div id="qsLeak" class="font-mono text-[17px] font-bold" style="color:var(--leak)">0h</div>
+          <div class="text-[10px] text-[var(--muted)] mt-0.5">هدررفته / هفته</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <section class="space-y-4 order-1 xl:order-2">
+
+    <div class="panel panel-glow p-1.5 flex items-center gap-1.5 w-fit">
+      <button id="btnViewTimeline" class="view-toggle-btn px-4 py-2 rounded-lg text-[12px] font-semibold flex items-center gap-2" data-active="true">
+        <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> تایم‌لاین هفتگی
+      </button>
+      <button id="btnViewCalendar" class="view-toggle-btn px-4 py-2 rounded-lg text-[12px] font-semibold flex items-center gap-2 text-[var(--muted)]">
+        <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> تقویم ۱۲ هفته‌ای
+      </button>
+    </div>
+
+    <!-- نمای تایم‌لاین -->
+    <div id="timelineView" class="panel panel-glow p-4 fade-in">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 class="font-display text-[13px] font-semibold">ویرایشگر هفتگی</h3>
+        <div class="flex items-center gap-3 text-[10px] text-[var(--muted)] flex-wrap">
+          <span class="flex items-center gap-1"><span class="dot" style="background:var(--sleep)"></span>خواب</span>
+          <span class="flex items-center gap-1"><span class="dot" style="background:var(--work)"></span>کار</span>
+          <span class="flex items-center gap-1"><span class="dot" style="background:var(--study)"></span>مطالعه</span>
+          <span class="flex items-center gap-1"><span class="dot" style="background:var(--workout)"></span>تمرین</span>
+          <span class="flex items-center gap-1"><span class="dot" style="background:var(--leak); box-shadow:0 0 6px var(--leak)"></span>هدررفت</span>
+        </div>
+      </div>
+      <div class="scrollpane">
+        <div id="tlGrid" class="tl-wrap select-none"></div>
+      </div>
+    </div>
+
+    <!-- نمای تقویم -->
+    <div id="calendarView" class="panel panel-glow p-4 hidden fade-in">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-display text-[13px] font-semibold">مرور برنامه ۳ ماهه</h3>
+        <span class="tag text-[var(--muted)]">۸۴ روز · ۱۲ هفته</span>
+      </div>
+      <div id="calMonths" class="space-y-5"></div>
+    </div>
+
+    <!-- جزئیات هفته -->
+    <div id="weekDetail" class="panel panel-glow p-4 hidden fade-in">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="font-mono text-[10px] text-[var(--muted)]" id="wdDate">—</div>
+          <h3 class="font-display text-[15px] font-semibold mt-0.5" id="wdTitle">جزئیات هفته</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="wdRest" class="tag" style="color:var(--workout); border-color:rgba(23,201,143,0.35)">استراحت —</span>
+          <button id="wdClose" class="w-7 h-7 rounded-lg border hairline flex items-center justify-center text-[var(--muted)] hover:text-white"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+      <div id="wdExercises" class="grid sm:grid-cols-2 gap-2"></div>
+    </div>
+  </section>
+
+  <!-- ============ چپ: ابزارک‌های پایش ============ -->
+  <aside class="space-y-4 order-3">
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="zap" class="w-3.5 h-3.5 text-[var(--accent)]"></i> بازدهی روزانه زمان</h2>
+      <div class="flex items-center justify-center py-2">
+        <svg width="140" height="140" viewBox="0 0 140 140" class="ring-shadow">
+          <circle cx="70" cy="70" r="58" stroke="#1a2029" stroke-width="12" fill="none"/>
+          <circle id="effRing" cx="70" cy="70" r="58" stroke="url(#effGrad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364" transform="rotate(-90 70 70)" style="transition:stroke-dashoffset 0.6s ease"/>
+          <defs>
+            <linearGradient id="effGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#22d3ee"/>
+              <stop offset="100%" stop-color="#17c98f"/>
+            </linearGradient>
+          </defs>
+          <text x="70" y="65" text-anchor="middle" fill="#e7ecf3" font-family="JetBrains Mono" font-size="24" font-weight="700" id="effText">0%</text>
+          <text x="70" y="83" text-anchor="middle" fill="#7c8797" font-family="Vazirmatn" font-size="9">میانگین روزانه</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-[var(--muted)]"></i> زمان مفید در برابر زمان تلف‌شده</h2>
+      <div id="prodBar" class="w-full h-6 rounded-lg overflow-hidden flex border hairline mb-2"></div>
+      <div class="flex justify-between text-[11px]">
+        <span style="color:var(--accent)">● مفید <span id="prodPct" class="font-mono">0%</span></span>
+        <span style="color:var(--leak)"><span id="deadPct" class="font-mono">0%</span> تلف‌شده ●</span>
+      </div>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="moon" class="w-3.5 h-3.5 text-[var(--sleep)]"></i> شاخص کیفیت خواب</h2>
+      <div class="flex items-end gap-3">
+        <div class="font-mono text-[28px] font-bold leading-none" id="sqiVal" style="color:var(--sleep)">0</div>
+        <div class="text-[11px] text-[var(--muted)] pb-1">از ۱۰۰ · میانگین <span id="sqiHours" class="font-mono">0h</span> در شب</div>
+      </div>
+      <div class="h-2 mt-2 rounded-full bg-[#161b24] overflow-hidden border hairline">
+        <div id="sqiBar" class="h-full rounded-full" style="width:0%; background:var(--sleep)"></div>
+      </div>
+      <p class="text-[10px] text-[var(--muted)] mt-2 leading-relaxed">بازه ثابت ۴ ساعته خواب کمتر از استاندارد ۷ تا ۹ ساعت است؛ شاخص، ریسک کمبود خواب را نشان می‌دهد.</p>
+    </div>
+
+    <div class="panel panel-glow p-4">
+      <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="pie-chart" class="w-3.5 h-3.5 text-[var(--muted)]"></i> تفکیک فعالیت‌ها</h2>
+      <div id="breakdownList" class="space-y-2.5"></div>
+    </div>
+  </aside>
+</main>
+
+<footer class="max-w-[1600px] mx-auto px-5 pb-8 pt-2 text-center text-[10px] font-mono text-[var(--muted-2)]">
+  PULSE DASHBOARD · فقط ذخیره‌سازی محلی · هیچ داده‌ای ارسال نمی‌شود
+</footer>
+
+<script>
+lucide.createIcons();
+
+/* ======================= داده‌ها ======================= */
+const DAYS = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+const DAYS_SHORT = ['ش','ی','د','س','چ','پ','ج'];
+const START_DATE = new Date(2026,6,6); // 15 تیر / ۶ ژوئیه
+const TOTAL_WEEKS = 12;
+const END_DATE = new Date(START_DATE.getTime() + (TOTAL_WEEKS*7 - 1)*86400000);
+
+const WORKOUT_DB = {
+  1:{phase:'فاز ۱ · پایه‌سازی و عادت', rest:'۹۰ ثانیه', exercises:[
+    {name:'اسکوات با صندلی', scheme:'۳ × ۱۰'},
+    {name:'شنا با دیوار', scheme:'۳ × ۸'},
+    {name:'پلانک زانو', scheme:'۳ × ۱۵ ثانیه'},
+    {name:'جامپینگ جک', scheme:'۳ × ۲۰ ثانیه'}]},
+  2:{phase:'فاز ۱ · پایه‌سازی و عادت', rest:'۹۰ ثانیه', exercises:[
+    {name:'اسکوات با صندلی', scheme:'۳ × ۱۲'},
+    {name:'شنا با مبل', scheme:'۳ × ۱۰'},
+    {name:'لانج معکوس', scheme:'۳ × ۶ هر پا'},
+    {name:'پلانک زانو', scheme:'۳ × ۲۵ ثانیه'},
+    {name:'جامپینگ جک', scheme:'۳ × ۳۰ ثانیه'}]},
+  3:{phase:'فاز ۱ · پایه‌سازی و عادت', rest:'۹۰ ثانیه', exercises:[
+    {name:'اسکوات با مکث ۳ ثانیه', scheme:'۳ × ۱۲'},
+    {name:'شنا با مبل', scheme:'۳ × ۱۲'},
+    {name:'لانج معکوس', scheme:'۳ × ۸ هر پا'},
+    {name:'پلانک زانو', scheme:'۳ × ۳۵ ثانیه'},
+    {name:'کوهنورد', scheme:'۳ × ۲۰ ثانیه'}]},
+  4:{phase:'فاز ۱ · پایه‌سازی و عادت', rest:'۹۰ ثانیه', exercises:[
+    {name:'اسکوات استاندارد', scheme:'۳ × ۱۰'},
+    {name:'شنا با مبل', scheme:'۴ × ۱۰'},
+    {name:'لانج معکوس', scheme:'۳ × ۱۰ هر پا'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۲۰ ثانیه'},
+    {name:'کوهنورد', scheme:'۳ × ۳۰ ثانیه'}]},
+  5:{phase:'فاز ۲ · استقامت و فرم صحیح', rest:'۶۰ تا ۷۵ ثانیه', exercises:[
+    {name:'اسکوات استاندارد', scheme:'۳ × ۱۲'},
+    {name:'شنا شیب‌دار زانو', scheme:'۳ × ۸'},
+    {name:'لانج راه‌رفتنی', scheme:'۳ × ۸ هر پا'},
+    {name:'گلوت بریج', scheme:'۳ × ۱۲'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۳۰ ثانیه'}]},
+  6:{phase:'فاز ۲ · استقامت و فرم صحیح', rest:'۶۰ تا ۷۵ ثانیه', exercises:[
+    {name:'اسکوات استاندارد', scheme:'۳ × ۱۵'},
+    {name:'شنا شیب‌دار زانو', scheme:'۳ × ۱۲'},
+    {name:'لانج راه‌رفتنی', scheme:'۳ × ۱۰ هر پا'},
+    {name:'گلوت بریج', scheme:'۳ × ۱۵'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۴۰ ثانیه'}]},
+  7:{phase:'فاز ۲ · استقامت و فرم صحیح', rest:'۶۰ تا ۷۵ ثانیه', exercises:[
+    {name:'اسکوات استاندارد', scheme:'۴ × ۱۲'},
+    {name:'شنای استاندارد', scheme:'۳ × ۶'},
+    {name:'اسکوات بلغاری', scheme:'۳ × ۶ هر پا'},
+    {name:'گلوت بریج تک‌پا', scheme:'۳ × ۸ هر پا'},
+    {name:'پلانک استاندارد', scheme:'۴ × ۳۵ ثانیه'}]},
+  8:{phase:'فاز ۲ · استقامت و فرم صحیح', rest:'۶۰ تا ۷۵ ثانیه', exercises:[
+    {name:'اسکوات استاندارد', scheme:'۴ × ۱۵'},
+    {name:'شنای استاندارد', scheme:'۳ × ۸'},
+    {name:'اسکوات بلغاری', scheme:'۳ × ۸ هر پا'},
+    {name:'کرانچ نیم', scheme:'۳ × ۱۵'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۵۰ ثانیه'}]},
+  9:{phase:'فاز ۳ · انفجاری و پیشرفته', rest:'حداکثر ۶۰ ثانیه', exercises:[
+    {name:'اسکوات جامپ', scheme:'۳ × ۱۰'},
+    {name:'شنای کامل', scheme:'۳ × ۱۰'},
+    {name:'اسکوات بلغاری', scheme:'۳ × ۱۰ هر پا'},
+    {name:'پلانک کماندو', scheme:'۳ × ۳۰ ثانیه'},
+    {name:'کرانچ دوچرخه', scheme:'۳ × ۱۶'}]},
+  10:{phase:'فاز ۳ · انفجاری و پیشرفته', rest:'حداکثر ۶۰ ثانیه', exercises:[
+    {name:'اسکوات جامپ', scheme:'۳ × ۱۲'},
+    {name:'شنای کامل', scheme:'۴ × ۱۰'},
+    {name:'اسکوات بلغاری', scheme:'۴ × ۱۰ هر پا'},
+    {name:'بورپی بدون شنا', scheme:'۳ × ۸'},
+    {name:'پلانک کماندو', scheme:'۳ × ۴۰ ثانیه'},
+    {name:'کرانچ دوچرخه', scheme:'۳ × ۲۰ ثانیه'}]},
+  11:{phase:'فاز ۳ · انفجاری و پیشرفته', rest:'حداکثر ۶۰ ثانیه', exercises:[
+    {name:'اسکوات جامپ', scheme:'۴ × ۱۲'},
+    {name:'شنای کامل', scheme:'۴ × ۱۲'},
+    {name:'لانج جامپ', scheme:'۳ × ۸ هر پا'},
+    {name:'بورپی کامل', scheme:'۳ × ۸'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۱ دقیقه'},
+    {name:'کرانچ دوچرخه', scheme:'۴ × ۲۰'}]},
+  12:{phase:'فاز ۳ · انفجاری و پیشرفته', rest:'۴۵ ثانیه (اجباری)', exercises:[
+    {name:'اسکوات جامپ', scheme:'۴ × ۱۲'},
+    {name:'شنای کامل', scheme:'۴ × ۱۲'},
+    {name:'لانج جامپ', scheme:'۳ × ۸ هر پا'},
+    {name:'بورپی کامل', scheme:'۳ × ۸'},
+    {name:'پلانک استاندارد', scheme:'۳ × ۱ دقیقه'},
+    {name:'کرانچ دوچرخه', scheme:'۴ × ۲۰'}]},
+};
+
+/* ======================= وضعیت ======================= */
+let schedule = DAYS.map(()=>Array(24).fill(null));
+let offDay = -1;
+let floatingQuota = 6;
+let selectedTool = 'study';
+let painting = false;
+let paintValue = null;
+
+function isLocked(day,hour){
+  if(hour>=1 && hour<5) return true; // sleep always fixed
+  if(day===offDay) return true; // off day: fully cleared, not paintable
+  if(hour>=9 && hour<21) return true; // work, only on non-off days
+  return false;
+}
+function baseType(day,hour){
+  if(hour>=1 && hour<5) return 'sleep';
+  if(day===offDay) return 'off'; // cleared day — no work, shown as OFF
+  if(hour>=9 && hour<21) return 'work';
+  return null;
+}
+function cellType(day,hour){
+  const b = baseType(day,hour);
+  if(b) return b;
+  return schedule[day][hour];
+}
+
+/* ======================= مقداردهی اولیه ======================= */
+const offDaySelect = document.getElementById('offDaySelect');
+DAYS.forEach((d,i)=>{
+  const opt = document.createElement('option');
+  opt.value=i; opt.textContent=d;
+  offDaySelect.appendChild(opt);
+});
+offDaySelect.value = 6; // جمعه به‌طور پیش‌فرض تعطیل
+offDay = 6;
+offDaySelect.addEventListener('change', e=>{
+  offDay = parseInt(e.target.value);
+  renderTimeline(); updateStats();
+});
+
+document.querySelectorAll('.tool-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tool-btn').forEach(b=>b.dataset.active='false');
+    btn.dataset.active='true';
+    selectedTool = btn.dataset.tool;
+  });
+});
+
+const floatingRange = document.getElementById('floatingRange');
+const floatingVal = document.getElementById('floatingVal');
+floatingRange.addEventListener('input', e=>{
+  floatingQuota = parseInt(e.target.value);
+  floatingVal.textContent = floatingQuota+'h';
+  updateStats();
+});
+
+/* ======================= رندر تایم‌لاین ======================= */
+const tlGrid = document.getElementById('tlGrid');
+function renderTimeline(){
+  tlGrid.innerHTML='';
+  tlGrid.appendChild(document.createElement('div'));
+  DAYS.forEach(d=>{
+    const el=document.createElement('div');
+    el.className='tl-daylabel';
+    el.textContent=d;
+    tlGrid.appendChild(el);
+  });
+  for(let h=0; h<24; h++){
+    const label=document.createElement('div');
+    label.className='tl-hourlabel'+(h===0?' hour0':'');
+    label.textContent=String(h).padStart(2,'0')+':00';
+    tlGrid.appendChild(label);
+    for(let d=0; d<7; d++){
+      const cell=document.createElement('div');
+      cell.className='tl-cell'+(h===0?' hour0':'');
+      cell.dataset.day=d; cell.dataset.hour=h;
+      const type=cellType(d,h);
+      const locked=isLocked(d,h);
+      if(locked) cell.classList.add('locked');
+      if(type) cell.dataset.type=type;
+      if(!type && !locked) cell.classList.add('leak');
+      cell.addEventListener('mousedown', e=>{
+        e.preventDefault();
+        if(isLocked(d,h)) return;
+        painting=true;
+        paintValue = selectedTool==='erase'? null : selectedTool;
+        schedule[d][h]=paintValue;
+        refreshCell(cell,d,h);
+        updateStats();
+      });
+      cell.addEventListener('mouseenter', ()=>{
+        if(!painting) return;
+        if(isLocked(d,h)) return;
+        schedule[d][h]=paintValue;
+        refreshCell(cell,d,h);
+        updateStats();
+      });
+      tlGrid.appendChild(cell);
+    }
+  }
+}
+function refreshCell(cell,d,h){
+  const type=cellType(d,h);
+  const locked=isLocked(d,h);
+  cell.classList.toggle('locked',locked);
+  if(type){cell.dataset.type=type; cell.classList.remove('leak');}
+  else{delete cell.dataset.type; if(!locked) cell.classList.add('leak'); else cell.classList.remove('leak');}
+}
+document.addEventListener('mouseup', ()=>{painting=false;});
+
+/* ======================= تغییر نما ======================= */
+const btnTimeline=document.getElementById('btnViewTimeline');
+const btnCalendar=document.getElementById('btnViewCalendar');
+const timelineView=document.getElementById('timelineView');
+const calendarView=document.getElementById('calendarView');
+btnTimeline.addEventListener('click', ()=>{
+  btnTimeline.dataset.active='true'; btnCalendar.dataset.active='false';
+  btnTimeline.classList.remove('text-[var(--muted)]'); btnCalendar.classList.add('text-[var(--muted)]');
+  timelineView.classList.remove('hidden'); calendarView.classList.add('hidden');
+});
+btnCalendar.addEventListener('click', ()=>{
+  btnCalendar.dataset.active='true'; btnTimeline.dataset.active='false';
+  btnCalendar.classList.remove('text-[var(--muted)]'); btnTimeline.classList.add('text-[var(--muted)]');
+  calendarView.classList.remove('hidden'); timelineView.classList.add('hidden');
+});
+
+/* ======================= رندر تقویم ======================= */
+const MONTH_NAMES=['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
+function weekNumberForDate(date){
+  const diffDays = Math.floor((date - START_DATE)/86400000);
+  return Math.min(TOTAL_WEEKS, Math.max(1, Math.floor(diffDays/7)+1));
+}
+function dayLeakHours(dayIdx){
+  let leak=0;
+  for(let h=0; h<24; h++){ if(!isLocked(dayIdx,h) && !schedule[dayIdx][h]) leak++; }
+  return leak;
+}
+function renderCalendar(){
+  const calMonths=document.getElementById('calMonths');
+  calMonths.innerHTML='';
+  let cursor=new Date(START_DATE);
+  let monthBuckets=[];
+  while(cursor<=END_DATE){
+    const key=cursor.getFullYear()+'-'+cursor.getMonth();
+    let bucket=monthBuckets.find(b=>b.key===key);
+    if(!bucket){bucket={key, label:MONTH_NAMES[cursor.getMonth()]+' '+cursor.getFullYear(), days:[]}; monthBuckets.push(bucket);}
+    bucket.days.push(new Date(cursor));
+    cursor=new Date(cursor.getTime()+86400000);
+  }
+  monthBuckets.forEach(bucket=>{
+    const wrap=document.createElement('div');
+    wrap.innerHTML = `<div class="flex items-center justify-between mb-2">
+        <h4 class="font-display text-[12px] font-semibold text-[var(--muted)]">${bucket.label}</h4>
+      </div>`;
+    const grid=document.createElement('div');
+    grid.className='grid grid-cols-7 gap-1.5';
+    const firstDow=(bucket.days[0].getDay()+1)%7;
+    for(let i=0;i<firstDow;i++){ const blank=document.createElement('div'); grid.appendChild(blank); }
+    bucket.days.forEach(dt=>{
+      const wn=weekNumberForDate(dt);
+      const dow=(dt.getDay()+1)%7;
+      const leak=dayLeakHours(dow);
+      const cell=document.createElement('div');
+      cell.className='cal-cell p-1.5 flex flex-col justify-between';
+      const isToday = dt.toDateString()===new Date(2026,6,3).toDateString();
+      if(isToday) cell.classList.add('today');
+      cell.innerHTML=`
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[11px] font-semibold">${dt.getDate()}</span>
+          ${leak>0?'<span class="dot" style="background:var(--leak); box-shadow:0 0 6px var(--leak)"></span>':''}
+        </div>
+        <div class="font-mono text-[9px] text-[var(--muted)]">W${wn}</div>`;
+      cell.addEventListener('click', ()=>showWeekDetail(dt,wn));
+      grid.appendChild(cell);
+    });
+    wrap.appendChild(grid);
+    calMonths.appendChild(wrap);
+  });
+}
+
+function showWeekDetail(date, weekN){
+  const panel=document.getElementById('weekDetail');
+  panel.classList.remove('hidden');
+  document.getElementById('wdDate').textContent = 'هفته '+weekN+' از ۱۲';
+  const data=WORKOUT_DB[weekN];
+  document.getElementById('wdTitle').textContent=data.phase;
+  document.getElementById('wdRest').textContent='استراحت '+data.rest;
+  const ex=document.getElementById('wdExercises');
+  ex.innerHTML='';
+  data.exercises.forEach(item=>{
+    const el=document.createElement('div');
+    el.className='flex items-center justify-between p-2.5 rounded-lg border hairline';
+    el.innerHTML=`<span class="text-[12px] flex items-center gap-2"><i data-lucide="dumbbell" class="w-3.5 h-3.5" style="color:var(--workout)"></i>${item.name}</span><span class="font-mono text-[12px] text-[var(--muted)]">${item.scheme}</span>`;
+    ex.appendChild(el);
+  });
+  lucide.createIcons();
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+document.getElementById('wdClose').addEventListener('click', ()=>{
+  document.getElementById('weekDetail').classList.add('hidden');
+});
+
+/* ======================= شمارش‌معکوس و فاز ======================= */
+function renderCountdown(){
+  const now=new Date(2026,6,3);
+  const countdownText=document.getElementById('countdownText');
+  const phaseTag=document.getElementById('phaseTag');
+  if(now<START_DATE){
+    const d=Math.ceil((START_DATE-now)/86400000);
+    countdownText.textContent=d+' DAYS TO LAUNCH';
+    phaseTag.textContent='🟡 PRE-PROGRAM · START JUL 6';
+  } else if(now>END_DATE){
+    countdownText.textContent='PROGRAM COMPLETE';
+    phaseTag.textContent='🔵 12-WEEK CYCLE COMPLETE';
+  } else {
+    const remaining=Math.ceil((END_DATE-now)/86400000);
+    const wn=weekNumberForDate(now);
+    countdownText.textContent=remaining+' DAYS REMAINING';
+    phaseTag.textContent='🟢 WEEK '+wn+'/12 ACTIVE';
+  }
+}
+
+/* ======================= آمار ======================= */
+function updateStats(){
+  let productiveMinsWeek=0, leakMinsWeek=0, sleepHoursTotal=0;
+  let counts={sleep:0,work:0,study:0,workout:0,off:0,free:0};
+  for(let d=0; d<7; d++){
+    for(let h=0; h<24; h++){
+      const t=cellType(d,h);
+      if(t==='sleep'){counts.sleep++; sleepHoursTotal++;}
+      else if(t==='work'){counts.work++; productiveMinsWeek++;}
+      else if(t==='study'){counts.study++; productiveMinsWeek++;}
+      else if(t==='workout'){counts.workout++; productiveMinsWeek++;}
+      else if(t==='off'){counts.off++;}
+      else {counts.free++; leakMinsWeek++;}
+    }
+  }
+  document.getElementById('qsProductive').textContent=productiveMinsWeek+'h';
+  document.getElementById('qsLeak').textContent=leakMinsWeek+'h';
+
+  const quotaPct=Math.min(100, Math.round((leakMinsWeek/Math.max(1,floatingQuota))*100));
+  document.getElementById('quotaBar').style.width=quotaPct+'%';
+  document.getElementById('quotaLabel').textContent=leakMinsWeek+' / '+floatingQuota+'h'+(leakMinsWeek>=floatingQuota?'  ✓':'');
+
+  const avgDailyEff=Math.round((productiveMinsWeek/(24*7))*100);
+  const circumference=364;
+  const offset=circumference - (avgDailyEff/100)*circumference;
+  document.getElementById('effRing').style.strokeDashoffset=offset;
+  document.getElementById('effText').textContent=avgDailyEff+'%';
+
+  const totalHrs=24*7;
+  const prodPct=Math.round((productiveMinsWeek/totalHrs)*100);
+  const deadPct=Math.round((leakMinsWeek/totalHrs)*100);
+  const restPct=100-prodPct-deadPct;
+  const bar=document.getElementById('prodBar');
+  bar.innerHTML=`<div style="width:${prodPct}%; background:linear-gradient(90deg,#22d3ee,#17c98f)"></div>
+                 <div style="width:${restPct}%; background:#232b39"></div>
+                 <div style="width:${deadPct}%; background:var(--leak)"></div>`;
+  document.getElementById('prodPct').textContent=prodPct+'%';
+  document.getElementById('deadPct').textContent=deadPct+'%';
+
+  const avgSleepPerNight=sleepHoursTotal/7;
+  const sqi=Math.min(100, Math.round((avgSleepPerNight/8)*100));
+  document.getElementById('sqiVal').textContent=sqi;
+  document.getElementById('sqiHours').textContent=avgSleepPerNight.toFixed(1)+'h';
+  document.getElementById('sqiBar').style.width=sqi+'%';
+
+  const breakdown=document.getElementById('breakdownList');
+  const items=[
+    {label:'خواب', val:counts.sleep, color:'var(--sleep)'},
+    {label:'کار', val:counts.work, color:'var(--work)'},
+    {label:'مطالعه', val:counts.study, color:'var(--study)'},
+    {label:'تمرین', val:counts.workout, color:'var(--workout)'},
+    {label:'روز تعطیل', val:counts.off, color:'var(--off)'},
+    {label:'آزاد / هدررفت', val:counts.free, color:'var(--leak)'},
+  ];
+  const max=Math.max(...items.map(i=>i.val),1);
+  breakdown.innerHTML='';
+  items.forEach(i=>{
+    const row=document.createElement('div');
+    row.innerHTML=`
+      <div class="flex justify-between text-[11px] mb-1">
+        <span class="flex items-center gap-1.5"><span class="dot" style="background:${i.color}"></span>${i.label}</span>
+        <span class="font-mono text-[var(--muted)]">${i.val}h</span>
+      </div>
+      <div class="h-1.5 rounded-full bg-[#161b24] overflow-hidden">
+        <div style="width:${(i.val/max)*100}%; background:${i.color}; height:100%; border-radius:9999px;"></div>
+      </div>`;
+    breakdown.appendChild(row);
+  });
+}
+
+/* ======================= همگام‌سازی گیت‌هاب ======================= */
+function b64EncodeUnicode(str){
+  const bytes=new TextEncoder().encode(str);
+  let binary='';
+  bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return btoa(binary);
+}
+function b64DecodeUnicode(str){
+  const binary=atob(str.replace(/\n/g,''));
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function serializeState(){
+  return JSON.stringify({schedule, offDay, floatingQuota, savedAt:new Date().toISOString()}, null, 2);
+}
+function applyState(data){
+  if(data.schedule){ schedule = data.schedule; }
+  if(typeof data.offDay==='number'){ offDay=data.offDay; offDaySelect.value=offDay; }
+  if(typeof data.floatingQuota==='number'){ floatingQuota=data.floatingQuota; floatingRange.value=floatingQuota; floatingVal.textContent=floatingQuota+'h'; }
+  renderTimeline(); renderCalendar(); updateStats();
+}
+function setGhStatus(text, color){
+  document.getElementById('ghStatusText').textContent=text;
+  document.getElementById('ghStatusDot').style.background=color;
+  document.getElementById('ghStatusDot').style.boxShadow='0 0 6px '+color;
+}
+async function ghRequest(method, body){
+  const token=document.getElementById('ghToken').value.trim();
+  const repo=document.getElementById('ghRepo').value.trim();
+  const path=document.getElementById('ghPath').value.trim();
+  const branch=document.getElementById('ghBranch').value.trim() || 'main';
+  if(!token || !repo || !path){ setGhStatus('توکن، مخزن یا مسیر خالی است', '#f2416b'); return null; }
+  const url=`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+  const headers={
+    'Authorization':'Bearer '+token,
+    'Accept':'application/vnd.github+json'
+  };
+  try{
+    if(method==='GET'){
+      const res=await fetch(url, {headers});
+      if(res.status===404) return {notFound:true};
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return await res.json();
+    } else {
+      headers['Content-Type']='application/json';
+      const res=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method:'PUT', headers, body:JSON.stringify(body)
+      });
+      if(!res.ok){ const err=await res.json().catch(()=>({})); throw new Error(err.message || ('HTTP '+res.status)); }
+      return await res.json();
+    }
+  }catch(e){
+    setGhStatus('خطا: '+e.message, '#f2416b');
+    return null;
+  }
+}
+document.getElementById('ghLoadBtn').addEventListener('click', async ()=>{
+  setGhStatus('در حال بارگذاری…', '#f5a524');
+  const file=await ghRequest('GET');
+  if(!file) return;
+  if(file.notFound){ setGhStatus('فایل هنوز در مخزن وجود ندارد', '#f5a524'); return; }
+  try{
+    const content=b64DecodeUnicode(file.content);
+    const data=JSON.parse(content);
+    applyState(data);
+    setGhStatus('بارگذاری موفق ✓', '#17c98f');
+  }catch(e){
+    setGhStatus('خطا در خواندن JSON: '+e.message, '#f2416b');
+  }
+});
+document.getElementById('ghSaveBtn').addEventListener('click', async ()=>{
+  setGhStatus('در حال ذخیره…', '#f5a524');
+  const branch=document.getElementById('ghBranch').value.trim() || 'main';
+  const existing=await ghRequest('GET');
+  if(existing===null) return;
+  const body={
+    message:'chore: update schedule.json from PULSE dashboard',
+    content:b64EncodeUnicode(serializeState()),
+    branch
+  };
+  if(existing && !existing.notFound && existing.sha){ body.sha=existing.sha; }
+  const res=await ghRequest('PUT', body);
+  if(res){ setGhStatus('ذخیره موفق ✓ ('+new Date().toLocaleTimeString('fa-IR')+')', '#17c98f'); }
+});
+
+/* ======================= اجرا ======================= */
+renderTimeline();
+renderCalendar();
+renderCountdown();
+updateStats();
+</script>
+</body>
+</html>
