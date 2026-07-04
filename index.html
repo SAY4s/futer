@@ -119,8 +119,8 @@
 
     <div class="panel panel-glow p-4">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="settings-2" class="w-3.5 h-3.5 text-[var(--muted)]"></i> بازه‌های ثابت</h2>
-        <span class="tag text-[var(--muted)]">قابل‌ویرایش</span>
+        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="settings-2" class="w-3.5 h-3.5 text-[var(--muted)]"></i> پر کردن سریع</h2>
+        <span class="tag text-[var(--muted)]">اختیاری</span>
       </div>
       <div class="space-y-3">
         <div class="p-2.5 rounded-lg border hairline">
@@ -133,6 +133,7 @@
             <span class="text-[var(--muted)] text-[11px]">تا</span>
             <select id="sleepEndSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
           </div>
+          <button id="fillSleepBtn" class="w-full mt-2 py-1.5 rounded-lg border hairline text-[11px]" style="color:var(--sleep)">اعمال به همه‌ی روزها</button>
         </div>
         <div class="p-2.5 rounded-lg border hairline">
           <div class="flex items-center gap-2 mb-2">
@@ -144,9 +145,10 @@
             <span class="text-[var(--muted)] text-[11px]">تا</span>
             <select id="workEndSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
           </div>
+          <button id="fillWorkBtn" class="w-full mt-2 py-1.5 rounded-lg border hairline text-[11px]" style="color:var(--work)">اعمال به همه‌ی روزها</button>
         </div>
       </div>
-      <p class="text-[10px] text-[var(--muted)] mt-2 leading-relaxed">این دو بازه هم‌چنان قفل هستند (قابل رنگ‌آمیزی با ابزار نیستند) اما می‌توانید ساعت شروع/پایانشان را از اینجا تغییر دهید.</p>
+      <p class="text-[10px] text-[var(--muted)] mt-2 leading-relaxed">این فقط یک پرکن سریع است. بعد از اعمال، خواب و کار هم مثل مطالعه و تمرین کاملاً با ابزار رنگ‌آمیزی زیر قابل تغییرند (به‌جز روز تعطیل).</p>
     </div>
 
     <div class="panel panel-glow p-4">
@@ -177,6 +179,12 @@
     <div class="panel panel-glow p-4">
       <h2 class="font-display text-[13px] font-semibold flex items-center gap-2 mb-3"><i data-lucide="paintbrush" class="w-3.5 h-3.5 text-[var(--muted)]"></i> ابزار رنگ‌آمیزی</h2>
       <div class="grid grid-cols-2 gap-2">
+        <button class="tool-btn px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center gap-2" style="color:#6366f1" data-tool="sleep">
+          <span class="dot" style="background:var(--sleep)"></span> خواب
+        </button>
+        <button class="tool-btn px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center gap-2" style="color:#2f7ef0" data-tool="work">
+          <span class="dot" style="background:var(--work)"></span> کار
+        </button>
         <button class="tool-btn px-3 py-2.5 rounded-lg border hairline text-[12px] flex items-center gap-2" style="color:#f5a524" data-tool="study" data-active="true">
           <span class="dot" style="background:var(--study)"></span> مطالعه
         </button>
@@ -187,7 +195,7 @@
           <i data-lucide="eraser" class="w-3.5 h-3.5"></i> پاک کردن خانه
         </button>
       </div>
-      <p class="text-[11px] text-[var(--muted)] mt-3 leading-relaxed">روی ساعت‌های باز (قفل‌نشده) بکشید تا رنگ‌آمیزی شود. خانه‌های خواب، کار و روز تعطیل قابل تغییر نیستند.</p>
+      <p class="text-[11px] text-[var(--muted)] mt-3 leading-relaxed">هر چهار فعالیت (خواب، کار، مطالعه، تمرین) کاملاً با کشیدن موس روی خانه‌ها قابل رنگ‌آمیزی‌اند. فقط روز تعطیل قابل تغییر نیست.</p>
     </div>
 
     <div class="panel panel-glow p-4">
@@ -198,24 +206,16 @@
         </span>
       </div>
       <div class="space-y-2">
-        <div>
-          <label class="text-[10px] text-[var(--muted)]">توکن دسترسی (PAT)</label>
-          <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" value="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" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
-        </div>
-        <div>
-          <label class="text-[10px] text-[var(--muted)]">مخزن (owner/repo)</label>
-          <input id="ghRepo" type="text" placeholder="SAY4s/pery" value="SAY4s/futer" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-[10px] text-[var(--muted)]">مسیر فایل</label>
-            <input id="ghPath" type="text" value="responses.json" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+        <div class="p-2.5 rounded-lg border hairline">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="table" class="w-3 h-3 text-[var(--muted)]"></i>
+            <span class="text-[10px] text-[var(--muted)]">منبع تنظیمات: گوگل‌شیت (سلول A2)</span>
           </div>
-          <div>
-            <label class="text-[10px] text-[var(--muted)]">شاخه</label>
-            <input id="ghBranch" type="text" value="main" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
-          </div>
+          <div id="ghConfigDisplay" class="font-mono text-[11px] leading-relaxed" style="direction:ltr; text-align:left;">در حال خواندن…</div>
         </div>
+        <button id="ghReloadConfigBtn" class="w-full py-1.5 rounded-lg border hairline text-[11px] text-[var(--muted)] flex items-center justify-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> بارگذاری مجدد تنظیمات از شیت
+        </button>
       </div>
       <div class="grid grid-cols-2 gap-2 mt-2">
         <button id="ghLoadBtn" class="px-3 py-2 rounded-lg border hairline text-[11px] flex items-center justify-center gap-1.5 text-[var(--muted)] hover:text-white">
@@ -292,6 +292,10 @@
         </div>
       </div>
       <div id="wdExercises" class="grid sm:grid-cols-2 gap-2"></div>
+      <div class="mt-3">
+        <label class="text-[11px] text-[var(--muted)] flex items-center gap-1.5"><i data-lucide="sticky-note" class="w-3.5 h-3.5"></i> یادداشت این روز</label>
+        <textarea id="wdNote" rows="3" placeholder="یادداشتت را برای این تاریخ بنویس…" class="w-full mt-1.5 rounded-lg px-3 py-2 text-[12px]" style="background:#0d1117; border:1px solid var(--border); color:var(--text); resize:vertical;"></textarea>
+      </div>
     </div>
   </section>
 
@@ -444,6 +448,7 @@ let painting = false;
 let paintValue = null;
 let sleepStart = 1, sleepEnd = 5;
 let workStart = 9, workEnd = 21;
+let notes = {}; // { 'YYYY-MM-DD': 'text' }
 
 function inRange(hour,start,end){
   if(start===end) return false;
@@ -451,15 +456,10 @@ function inRange(hour,start,end){
   return hour>=start || hour<end; // overnight wrap (e.g. 23 -> 6)
 }
 function isLocked(day,hour){
-  if(inRange(hour,sleepStart,sleepEnd)) return true; // sleep always fixed
-  if(day===offDay) return true; // off day: fully cleared, not paintable
-  if(inRange(hour,workStart,workEnd)) return true; // work, only on non-off days
-  return false;
+  return day===offDay; // only the OFF day is locked; everything else is fully paintable
 }
 function baseType(day,hour){
-  if(inRange(hour,sleepStart,sleepEnd)) return 'sleep';
-  if(day===offDay) return 'off'; // cleared day — no work, shown as OFF
-  if(inRange(hour,workStart,workEnd)) return 'work';
+  if(day===offDay) return 'off';
   return null;
 }
 function cellType(day,hour){
@@ -479,12 +479,36 @@ const workEndSel=document.getElementById('workEndSel');
 });
 sleepStartSel.value=sleepStart; sleepEndSel.value=sleepEnd;
 workStartSel.value=workStart; workEndSel.value=workEnd;
-function onFixedRangeChange(){
+[sleepStartSel,sleepEndSel,workStartSel,workEndSel].forEach(sel=>sel.addEventListener('change', ()=>{
   sleepStart=parseInt(sleepStartSel.value); sleepEnd=parseInt(sleepEndSel.value);
   workStart=parseInt(workStartSel.value); workEnd=parseInt(workEndSel.value);
+}));
+function fillRangeAllDays(type,start,end){
+  for(let d=0; d<7; d++){
+    if(d===offDay) continue;
+    for(let h=0; h<24; h++){
+      if(inRange(h,start,end)) schedule[d][h]=type;
+    }
+  }
   renderTimeline(); renderCalendar(); updateStats();
 }
-[sleepStartSel,sleepEndSel,workStartSel,workEndSel].forEach(sel=>sel.addEventListener('change', onFixedRangeChange));
+document.getElementById('fillSleepBtn').addEventListener('click', ()=>{
+  sleepStart=parseInt(sleepStartSel.value); sleepEnd=parseInt(sleepEndSel.value);
+  fillRangeAllDays('sleep', sleepStart, sleepEnd);
+});
+document.getElementById('fillWorkBtn').addEventListener('click', ()=>{
+  workStart=parseInt(workStartSel.value); workEnd=parseInt(workEndSel.value);
+  fillRangeAllDays('work', workStart, workEnd);
+});
+function fillDefaultSchedule(){
+  for(let d=0; d<7; d++){
+    if(d===offDay) continue;
+    for(let h=0; h<24; h++){
+      if(inRange(h,sleepStart,sleepEnd)) schedule[d][h]='sleep';
+      else if(inRange(h,workStart,workEnd)) schedule[d][h]='work';
+    }
+  }
+}
 
 const offDaySelect = document.getElementById('offDaySelect');
 DAYS.forEach((d,i)=>{
@@ -494,6 +518,8 @@ DAYS.forEach((d,i)=>{
 });
 offDaySelect.value = 6; // جمعه به‌طور پیش‌فرض تعطیل
 offDay = 6;
+// پیش‌فرض اولیه: خواب و کار برای همه‌ی روزهای غیرتعطیل پر می‌شود، اما کاملاً قابل تغییر است
+fillDefaultSchedule();
 offDaySelect.addEventListener('change', e=>{
   offDay = parseInt(e.target.value);
   renderTimeline(); renderCalendar(); updateStats();
@@ -591,6 +617,9 @@ function weekNumberForDate(date){
   const diffDays = Math.floor((date - START_DATE)/86400000);
   return Math.min(TOTAL_WEEKS, Math.max(1, Math.floor(diffDays/7)+1));
 }
+function dateKey(dt){
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
 function dayLeakHours(dayIdx){
   let leak=0;
   for(let h=0; h<24; h++){ if(!isLocked(dayIdx,h) && !schedule[dayIdx][h]) leak++; }
@@ -621,6 +650,7 @@ function renderCalendar(){
       const wn=weekNumberForDate(dt);
       const dow=(dt.getDay()+1)%7;
       const leak=dayLeakHours(dow);
+      const hasNote = !!notes[dateKey(dt)];
       const cell=document.createElement('div');
       cell.className='cal-cell p-1.5 flex flex-col justify-between';
       const isToday = dt.toDateString()===new Date(2026,6,3).toDateString();
@@ -628,7 +658,10 @@ function renderCalendar(){
       cell.innerHTML=`
         <div class="flex items-center justify-between">
           <span class="font-mono text-[11px] font-semibold">${dt.getDate()}</span>
-          ${leak>0?'<span class="dot" style="background:var(--leak); box-shadow:0 0 6px var(--leak)"></span>':''}
+          <span class="flex items-center gap-1">
+            ${hasNote?'<i data-lucide="sticky-note" class="w-3 h-3" style="color:var(--study)"></i>':''}
+            ${leak>0?'<span class="dot" style="background:var(--leak); box-shadow:0 0 6px var(--leak)"></span>':''}
+          </span>
         </div>
         <div class="font-mono text-[9px] text-[var(--muted)]">W${wn}</div>`;
       cell.addEventListener('click', ()=>showWeekDetail(dt,wn));
@@ -637,12 +670,15 @@ function renderCalendar(){
     wrap.appendChild(grid);
     calMonths.appendChild(wrap);
   });
+  lucide.createIcons();
 }
 
+let currentDetailDateKey = null;
 function showWeekDetail(date, weekN){
   const panel=document.getElementById('weekDetail');
   panel.classList.remove('hidden');
-  document.getElementById('wdDate').textContent = 'هفته '+weekN+' از ۱۲';
+  currentDetailDateKey = dateKey(date);
+  document.getElementById('wdDate').textContent = date.toLocaleDateString('fa-IR')+' · هفته '+weekN+' از ۱۲';
   const data=WORKOUT_DB[weekN];
   document.getElementById('wdTitle').textContent=data.phase;
   document.getElementById('wdRest').textContent='استراحت '+data.rest;
@@ -654,11 +690,20 @@ function showWeekDetail(date, weekN){
     el.innerHTML=`<span class="text-[12px] flex items-center gap-2"><i data-lucide="dumbbell" class="w-3.5 h-3.5" style="color:var(--workout)"></i>${item.name}</span><span class="font-mono text-[12px] text-[var(--muted)]">${item.scheme}</span>`;
     ex.appendChild(el);
   });
+  document.getElementById('wdNote').value = notes[currentDetailDateKey] || '';
   lucide.createIcons();
   panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
+document.getElementById('wdNote').addEventListener('input', e=>{
+  if(!currentDetailDateKey) return;
+  const val=e.target.value;
+  if(val.trim()) notes[currentDetailDateKey]=val;
+  else delete notes[currentDetailDateKey];
+});
+document.getElementById('wdNote').addEventListener('blur', ()=>{ renderCalendar(); });
 document.getElementById('wdClose').addEventListener('click', ()=>{
   document.getElementById('weekDetail').classList.add('hidden');
+  renderCalendar();
 });
 
 /* ======================= شمارش‌معکوس و فاز ======================= */
@@ -752,9 +797,62 @@ function updateStats(){
 }
 
 /* ======================= همگام‌سازی گیت‌هاب ======================= */
-// فرمت: owner/repo,path,branch,token
-const GH_CONFIG_STRING = "SAY4s/futer,responses.json,main,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";
-const [GH_REPO, GH_PATH, GH_BRANCH, GH_TOKEN] = GH_CONFIG_STRING.split(',');
+// تنظیمات (owner/repo,path,branch,token) از سلول A2 این گوگل‌شیت خوانده می‌شود:
+const GSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQwgHgBvIpgkVHaKENnJgnwdEYIrUSLqUH7s0_xUWkEx-GcMI_EPUiURR_OrNBA7fED984X6Ygam1I/pub?output=csv';
+
+let GH_REPO='', GH_PATH='', GH_BRANCH='', GH_TOKEN='';
+
+function parseCSV(text){
+  const rows=[]; let row=[]; let field=''; let inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"'; i++;} else inQuotes=false; }
+      else field+=c;
+    } else {
+      if(c==='"') inQuotes=true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\r'){ /* ignore */ }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field+=c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+function maskToken(t){
+  if(!t) return '—';
+  if(t.length<=8) return '••••••';
+  return t.slice(0,10)+'…'+t.slice(-4);
+}
+function renderGhConfigDisplay(){
+  const el=document.getElementById('ghConfigDisplay');
+  if(!GH_TOKEN){ el.innerHTML='<span style="color:var(--leak)">تنظیمات یافت نشد</span>'; return; }
+  el.innerHTML =
+    '<div>repo: <span style="color:var(--accent)">'+(GH_REPO||'—')+'</span></div>'+
+    '<div>path: <span style="color:var(--study)">'+(GH_PATH||'—')+'</span></div>'+
+    '<div>branch: '+(GH_BRANCH||'—')+'</div>'+
+    '<div>token: '+maskToken(GH_TOKEN)+'</div>';
+}
+async function loadGhConfigFromSheet(){
+  setGhStatus('در حال خواندن تنظیمات از شیت…', '#f5a524');
+  try{
+    const res = await fetch(GSHEET_CSV_URL);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const cellA2 = rows[1] && rows[1][0] ? rows[1][0].trim() : '';
+    const parts = cellA2.split(',').map(s=>s.trim());
+    if(parts.length<4 || !parts[3]) throw new Error('فرمت سلول A2 نامعتبر است');
+    [GH_REPO, GH_PATH, GH_BRANCH, GH_TOKEN] = parts;
+    renderGhConfigDisplay();
+    setGhStatus('تنظیمات از شیت بارگذاری شد ✓', '#17c98f');
+  }catch(e){
+    renderGhConfigDisplay();
+    setGhStatus('خطا در خواندن شیت: '+e.message, '#f2416b');
+  }
+}
+document.getElementById('ghReloadConfigBtn').addEventListener('click', loadGhConfigFromSheet);
 
 function b64EncodeUnicode(str){
   const bytes=new TextEncoder().encode(str);
@@ -769,7 +867,7 @@ function b64DecodeUnicode(str){
   return new TextDecoder().decode(bytes);
 }
 function serializeState(){
-  return JSON.stringify({schedule, offDay, floatingQuota, sleepStart, sleepEnd, workStart, workEnd, savedAt:new Date().toISOString()}, null, 2);
+  return JSON.stringify({schedule, offDay, floatingQuota, sleepStart, sleepEnd, workStart, workEnd, notes, savedAt:new Date().toISOString()}, null, 2);
 }
 function applyState(data){
   if(data.schedule){ schedule = data.schedule; }
@@ -779,6 +877,7 @@ function applyState(data){
   if(typeof data.sleepEnd==='number'){ sleepEnd=data.sleepEnd; sleepEndSel.value=sleepEnd; }
   if(typeof data.workStart==='number'){ workStart=data.workStart; workStartSel.value=workStart; }
   if(typeof data.workEnd==='number'){ workEnd=data.workEnd; workEndSel.value=workEnd; }
+  if(data.notes && typeof data.notes==='object'){ notes=data.notes; }
   renderTimeline(); renderCalendar(); updateStats();
 }
 function setGhStatus(text, color){
@@ -787,6 +886,7 @@ function setGhStatus(text, color){
   document.getElementById('ghStatusDot').style.boxShadow='0 0 6px '+color;
 }
 async function ghRequest(method, body){
+  if(!GH_TOKEN || !GH_REPO){ setGhStatus('تنظیمات گیت‌هاب هنوز آمده نشده — دکمه بارگذاری مجدد را بزن', '#f2416b'); return null; }
   const url=`https://api.github.com/repos/${GH_REPO}/contents/${GH_PATH}?ref=${GH_BRANCH}`;
   const headers={
     'Authorization':'Bearer '+GH_TOKEN,
@@ -844,6 +944,7 @@ renderTimeline();
 renderCalendar();
 renderCountdown();
 updateStats();
+loadGhConfigFromSheet();
 </script>
 </body>
 </html>
