@@ -167,20 +167,20 @@
       "sleep",
       "workout",
       null,
+      "study",
+      "study",
+      "study",
+      "study",
+      null,
+      "study",
+      "study",
+      "study",
+      "study",
       null,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      "study",
+      "study",
+      "study"
     ]
   ],
   "offDay": -1,
@@ -190,5 +190,5 @@
   "workStart": 9,
   "workEnd": 21,
   "notes": {},
-  "savedAt": "2026-07-04T11:05:31.046Z"
+  "savedAt": "2026-07-04T11:07:46.758Z"
 }
