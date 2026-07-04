@@ -119,25 +119,34 @@
 
     <div class="panel panel-glow p-4">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="lock" class="w-3.5 h-3.5 text-[var(--muted)]"></i> برنامه‌ی ثابت</h2>
-        <span class="tag text-[var(--muted)]">قفل‌شده</span>
+        <h2 class="font-display text-[13px] font-semibold flex items-center gap-2"><i data-lucide="settings-2" class="w-3.5 h-3.5 text-[var(--muted)]"></i> بازه‌های ثابت</h2>
+        <span class="tag text-[var(--muted)]">قابل‌ویرایش</span>
       </div>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between p-2 rounded-lg border hairline">
-          <div class="flex items-center gap-2">
+      <div class="space-y-3">
+        <div class="p-2.5 rounded-lg border hairline">
+          <div class="flex items-center gap-2 mb-2">
             <span class="dot" style="background:var(--sleep)"></span>
             <span class="text-[12px]">خواب</span>
           </div>
-          <span class="font-mono text-[11px] text-[var(--muted)]">01:00–05:00</span>
-        </div>
-        <div class="flex items-center justify-between p-2 rounded-lg border hairline">
           <div class="flex items-center gap-2">
+            <select id="sleepStartSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
+            <span class="text-[var(--muted)] text-[11px]">تا</span>
+            <select id="sleepEndSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
+          </div>
+        </div>
+        <div class="p-2.5 rounded-lg border hairline">
+          <div class="flex items-center gap-2 mb-2">
             <span class="dot" style="background:var(--work)"></span>
             <span class="text-[12px]">کار</span>
           </div>
-          <span class="font-mono text-[11px] text-[var(--muted)]">09:00–21:00</span>
+          <div class="flex items-center gap-2">
+            <select id="workStartSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
+            <span class="text-[var(--muted)] text-[11px]">تا</span>
+            <select id="workEndSel" class="flex-1 rounded-lg px-2 py-1.5 text-[11px] font-mono" style="direction:ltr;"></select>
+          </div>
         </div>
       </div>
+      <p class="text-[10px] text-[var(--muted)] mt-2 leading-relaxed">این دو بازه هم‌چنان قفل هستند (قابل رنگ‌آمیزی با ابزار نیستند) اما می‌توانید ساعت شروع/پایانشان را از اینجا تغییر دهید.</p>
     </div>
 
     <div class="panel panel-glow p-4">
@@ -191,32 +200,32 @@
       <div class="space-y-2">
         <div>
           <label class="text-[10px] text-[var(--muted)]">توکن دسترسی (PAT)</label>
-          <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+          <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" value="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" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
         </div>
         <div>
           <label class="text-[10px] text-[var(--muted)]">مخزن (owner/repo)</label>
-          <input id="ghRepo" type="text" placeholder="SAY4s/pery" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+          <input id="ghRepo" type="text" placeholder="SAY4s/pery" value="SAY4s/futer" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[10px] text-[var(--muted)]">مسیر فایل</label>
-            <input id="ghPath" type="text" value="data/schedule.json" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
+            <input id="ghPath" type="text" value="responses.json" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
           </div>
           <div>
             <label class="text-[10px] text-[var(--muted)]">شاخه</label>
             <input id="ghBranch" type="text" value="main" class="w-full mt-1 rounded-lg px-3 py-2 text-[12px] font-mono" style="direction:ltr;">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button id="ghLoadBtn" class="px-3 py-2 rounded-lg border hairline text-[11px] flex items-center justify-center gap-1.5 text-[var(--muted)] hover:text-white">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i> بارگذاری
-          </button>
-          <button id="ghSaveBtn" class="px-3 py-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5" style="background:var(--accent); color:#001217;">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i> ذخیره
-          </button>
-        </div>
-        <div id="ghStatusText" class="text-[10px] text-[var(--muted)] font-mono pt-1" style="direction:ltr; text-align:left;">آماده</div>
       </div>
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <button id="ghLoadBtn" class="px-3 py-2 rounded-lg border hairline text-[11px] flex items-center justify-center gap-1.5 text-[var(--muted)] hover:text-white">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> بارگذاری
+        </button>
+        <button id="ghSaveBtn" class="px-3 py-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5" style="background:var(--accent); color:#001217;">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i> ذخیره
+        </button>
+      </div>
+      <div id="ghStatusText" class="text-[10px] text-[var(--muted)] font-mono pt-2" style="direction:ltr; text-align:left;">آماده</div>
     </div>
 
     <div class="panel panel-glow p-4">
@@ -433,17 +442,24 @@ let floatingQuota = 6;
 let selectedTool = 'study';
 let painting = false;
 let paintValue = null;
+let sleepStart = 1, sleepEnd = 5;
+let workStart = 9, workEnd = 21;
 
+function inRange(hour,start,end){
+  if(start===end) return false;
+  if(start<end) return hour>=start && hour<end;
+  return hour>=start || hour<end; // overnight wrap (e.g. 23 -> 6)
+}
 function isLocked(day,hour){
-  if(hour>=1 && hour<5) return true; // sleep always fixed
+  if(inRange(hour,sleepStart,sleepEnd)) return true; // sleep always fixed
   if(day===offDay) return true; // off day: fully cleared, not paintable
-  if(hour>=9 && hour<21) return true; // work, only on non-off days
+  if(inRange(hour,workStart,workEnd)) return true; // work, only on non-off days
   return false;
 }
 function baseType(day,hour){
-  if(hour>=1 && hour<5) return 'sleep';
+  if(inRange(hour,sleepStart,sleepEnd)) return 'sleep';
   if(day===offDay) return 'off'; // cleared day — no work, shown as OFF
-  if(hour>=9 && hour<21) return 'work';
+  if(inRange(hour,workStart,workEnd)) return 'work';
   return null;
 }
 function cellType(day,hour){
@@ -453,6 +469,23 @@ function cellType(day,hour){
 }
 
 /* ======================= مقداردهی اولیه ======================= */
+function hourOption(h){ const o=document.createElement('option'); o.value=h; o.textContent=String(h).padStart(2,'0')+':00'; return o; }
+const sleepStartSel=document.getElementById('sleepStartSel');
+const sleepEndSel=document.getElementById('sleepEndSel');
+const workStartSel=document.getElementById('workStartSel');
+const workEndSel=document.getElementById('workEndSel');
+[sleepStartSel,sleepEndSel,workStartSel,workEndSel].forEach(sel=>{
+  for(let h=0;h<24;h++) sel.appendChild(hourOption(h));
+});
+sleepStartSel.value=sleepStart; sleepEndSel.value=sleepEnd;
+workStartSel.value=workStart; workEndSel.value=workEnd;
+function onFixedRangeChange(){
+  sleepStart=parseInt(sleepStartSel.value); sleepEnd=parseInt(sleepEndSel.value);
+  workStart=parseInt(workStartSel.value); workEnd=parseInt(workEndSel.value);
+  renderTimeline(); renderCalendar(); updateStats();
+}
+[sleepStartSel,sleepEndSel,workStartSel,workEndSel].forEach(sel=>sel.addEventListener('change', onFixedRangeChange));
+
 const offDaySelect = document.getElementById('offDaySelect');
 DAYS.forEach((d,i)=>{
   const opt = document.createElement('option');
@@ -463,7 +496,7 @@ offDaySelect.value = 6; // جمعه به‌طور پیش‌فرض تعطیل
 offDay = 6;
 offDaySelect.addEventListener('change', e=>{
   offDay = parseInt(e.target.value);
-  renderTimeline(); updateStats();
+  renderTimeline(); renderCalendar(); updateStats();
 });
 
 document.querySelectorAll('.tool-btn').forEach(btn=>{
@@ -719,6 +752,10 @@ function updateStats(){
 }
 
 /* ======================= همگام‌سازی گیت‌هاب ======================= */
+// فرمت: owner/repo,path,branch,token
+const GH_CONFIG_STRING = "SAY4s/futer,responses.json,main,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";
+const [GH_REPO, GH_PATH, GH_BRANCH, GH_TOKEN] = GH_CONFIG_STRING.split(',');
+
 function b64EncodeUnicode(str){
   const bytes=new TextEncoder().encode(str);
   let binary='';
@@ -732,12 +769,16 @@ function b64DecodeUnicode(str){
   return new TextDecoder().decode(bytes);
 }
 function serializeState(){
-  return JSON.stringify({schedule, offDay, floatingQuota, savedAt:new Date().toISOString()}, null, 2);
+  return JSON.stringify({schedule, offDay, floatingQuota, sleepStart, sleepEnd, workStart, workEnd, savedAt:new Date().toISOString()}, null, 2);
 }
 function applyState(data){
   if(data.schedule){ schedule = data.schedule; }
   if(typeof data.offDay==='number'){ offDay=data.offDay; offDaySelect.value=offDay; }
   if(typeof data.floatingQuota==='number'){ floatingQuota=data.floatingQuota; floatingRange.value=floatingQuota; floatingVal.textContent=floatingQuota+'h'; }
+  if(typeof data.sleepStart==='number'){ sleepStart=data.sleepStart; sleepStartSel.value=sleepStart; }
+  if(typeof data.sleepEnd==='number'){ sleepEnd=data.sleepEnd; sleepEndSel.value=sleepEnd; }
+  if(typeof data.workStart==='number'){ workStart=data.workStart; workStartSel.value=workStart; }
+  if(typeof data.workEnd==='number'){ workEnd=data.workEnd; workEndSel.value=workEnd; }
   renderTimeline(); renderCalendar(); updateStats();
 }
 function setGhStatus(text, color){
@@ -746,14 +787,9 @@ function setGhStatus(text, color){
   document.getElementById('ghStatusDot').style.boxShadow='0 0 6px '+color;
 }
 async function ghRequest(method, body){
-  const token=document.getElementById('ghToken').value.trim();
-  const repo=document.getElementById('ghRepo').value.trim();
-  const path=document.getElementById('ghPath').value.trim();
-  const branch=document.getElementById('ghBranch').value.trim() || 'main';
-  if(!token || !repo || !path){ setGhStatus('توکن، مخزن یا مسیر خالی است', '#f2416b'); return null; }
-  const url=`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+  const url=`https://api.github.com/repos/${GH_REPO}/contents/${GH_PATH}?ref=${GH_BRANCH}`;
   const headers={
-    'Authorization':'Bearer '+token,
+    'Authorization':'Bearer '+GH_TOKEN,
     'Accept':'application/vnd.github+json'
   };
   try{
@@ -764,7 +800,7 @@ async function ghRequest(method, body){
       return await res.json();
     } else {
       headers['Content-Type']='application/json';
-      const res=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      const res=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_PATH}`, {
         method:'PUT', headers, body:JSON.stringify(body)
       });
       if(!res.ok){ const err=await res.json().catch(()=>({})); throw new Error(err.message || ('HTTP '+res.status)); }
@@ -791,13 +827,12 @@ document.getElementById('ghLoadBtn').addEventListener('click', async ()=>{
 });
 document.getElementById('ghSaveBtn').addEventListener('click', async ()=>{
   setGhStatus('در حال ذخیره…', '#f5a524');
-  const branch=document.getElementById('ghBranch').value.trim() || 'main';
   const existing=await ghRequest('GET');
   if(existing===null) return;
   const body={
-    message:'chore: update schedule.json from PULSE dashboard',
+    message:'chore: update responses.json from PULSE dashboard',
     content:b64EncodeUnicode(serializeState()),
-    branch
+    branch:GH_BRANCH
   };
   if(existing && !existing.notFound && existing.sha){ body.sha=existing.sha; }
   const res=await ghRequest('PUT', body);
