@@ -151,21 +151,21 @@
       "work",
       "work",
       "work",
-      "work",
+      null,
       null,
       "study",
       "study"
     ],
     [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      "sleep",
+      "sleep",
+      "sleep",
+      "sleep",
+      "sleep",
+      "sleep",
+      "sleep",
+      "workout",
       null,
       null,
       null,
@@ -183,12 +183,12 @@
       null
     ]
   ],
-  "offDay": 6,
+  "offDay": -1,
   "floatingQuota": 6,
   "sleepStart": 1,
   "sleepEnd": 5,
   "workStart": 9,
   "workEnd": 21,
   "notes": {},
-  "savedAt": "2026-07-04T11:03:27.099Z"
+  "savedAt": "2026-07-04T11:05:31.046Z"
 }
